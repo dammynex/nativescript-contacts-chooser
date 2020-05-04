@@ -16,18 +16,18 @@ tns plugin add nativescript-contacts-chooser
 
 Describe any usage specifics for your plugin. Give examples for Android, iOS, Angular if needed. See [nativescript-drop-down](https://www.npmjs.com/package/nativescript-drop-down) for example.
 	
-	```javascript
-    import { ContactsChooser, ContactsChooserResult } from 'nativescript-contacts-chooser';
+```javascript
+import { ContactsChooser, ContactsChooserResult } from 'nativescript-contacts-chooser';
 
-    //Request for permission (Android)
-    chooser.requestPermission();
+//Request for permission (Android)
+chooser.requestPermission();
 
-    //Choose contact
-    chooser.open()
-        .then((contact: ContactsChooserResult) => {
-            console.log(contact);
-        })
-    ```)
+//Choose contact
+chooser.open()
+    .then((contact: ContactsChooserResult) => {
+        console.log(contact);
+    })
+```
 
 ## API
 
