@@ -1,7 +1,11 @@
 import { Common, ContactsChooserInterface, ContactsChooserResult } from './contacts-chooser.common';
-import * as app from 'tns-core-modules/application/application';
-import { ad } from 'tns-core-modules/utils/utils';
-import { action } from 'tns-core-modules/ui/dialogs/dialogs';
+import {
+    AndroidActivityResultEventData,
+    AndroidApplication,
+    Application,
+    Dialogs,
+    Utils
+} from '@nativescript/core';
 import { requestPermission, hasPermission } from 'nativescript-permissions';
 
 export class ContactsChooser extends Common implements ContactsChooserInterface {
@@ -31,7 +35,7 @@ export class ContactsChooser extends Common implements ContactsChooserInterface 
 
             let intent = new android.content.Intent(android.content.Intent.ACTION_PICK);
             intent.setType(android.provider.ContactsContract.Contacts.CONTENT_TYPE);
-            let activity = app.android.startActivity;
+            let activity = Application.android.startActivity;
 
             try {
                 activity.startActivityForResult(intent, SELECT_PHONE_NUMBER);
@@ -39,8 +43,8 @@ export class ContactsChooser extends Common implements ContactsChooserInterface 
                 return reject();
             }
 
-            app.android.on(app.AndroidApplication.activityResultEvent, (args: app.AndroidActivityResultEventData) => {
-                app.android.off(app.AndroidApplication.activityResultEvent);
+            Application.android.on(AndroidApplication.activityResultEvent, (args: AndroidActivityResultEventData) => {
+                Application.android.off(AndroidApplication.activityResultEvent);
 
                 let {requestCode, intent} = args;
 
@@ -53,7 +57,7 @@ export class ContactsChooser extends Common implements ContactsChooserInterface 
                 }
 
                 let uri = intent.getData();
-                let resolver = <android.content.ContentResolver>ad.getApplicationContext().getContentResolver();
+                let resolver = <android.content.ContentResolver>Utils.ad.getApplicationContext().getContentResolver();
 
                 let cursor = resolver.query(uri, null, null, null, null);
                 if (cursor.moveToFirst()) {
@@ -66,16 +70,27 @@ export class ContactsChooser extends Common implements ContactsChooserInterface 
                         CommonDataKinds.Phone.CONTACT_ID + "=" + contactId,
                         null, null);
 
+                    let phonesList = [];
                     let phoneNumbers = [];
 
                     while (phones.moveToNext()) {
-                        let phoneNumber = phones.getString(phones.getColumnIndex(CommonDataKinds.Phone.NUMBER));
-                        phoneNumbers.push(phoneNumber);
+                        let phoneNumber = phones.getString(phones.getColumnIndex(CommonDataKinds.Phone.NUMBER)).replace(/\s+/g, '');
+                        phonesList.push(phoneNumber);
                     }
 
                     // @ts-ignore
                     let nameIndex = cursor.getColumnIndex(CommonDataKinds.Phone.DISPLAY_NAME);
                     let name = cursor.getString(nameIndex);
+
+                    phonesList.map(phone => {
+                        let exists = phoneNumbers.find(phn => {
+                            return phn.includes(phone.substr(-10, 10));
+                        });
+
+                        if (!exists) {
+                            phoneNumbers.push(phone);
+                        }
+                    });
 
                     if (phoneNumbers.length < 2) {
                         return resolve(new ContactsChooserResult(name, phoneNumbers[0]));
@@ -83,7 +98,7 @@ export class ContactsChooser extends Common implements ContactsChooserInterface 
 
                     let cancelButtonText = 'Cancel';
 
-                    action({
+                    Dialogs.action({
                         title: 'Select A Number',
                         actions: phoneNumbers,
                         cancelButtonText

@@ -1,6 +1,5 @@
 import { Common, ContactsChooserInterface, ContactsChooserResult } from './contacts-chooser.common';
-import { action } from 'tns-core-modules/ui/dialogs/dialogs';
-import { setTimeout } from 'tns-core-modules/timer/timer';
+import { Dialogs } from '@nativescript/core';
 
 export class ContactsChooser extends Common implements ContactsChooserInterface {
 
@@ -22,18 +21,18 @@ export class ContactsChooser extends Common implements ContactsChooserInterface 
                     let phoneNumbers = contact.phoneNumbers;
 
                     if (phoneNumbers.count < 2) {
-                        return resolve(new ContactsChooserResult(name, phoneNumbers[0].value.stringValue));
+                        return resolve(new ContactsChooserResult(name, phoneNumbers[0].value.stringValue.replace(/s+/g, '')));
                     }
 
                     let phones = [];
                     let cancelButtonText = 'Cancel';
 
                     for (let i = 0; i < phoneNumbers.count; i++) {
-                        phones.push(phoneNumbers[i].value.stringValue);
+                        phones.push(phoneNumbers[i].value.stringValue.replace(/\s+/g, ''));
                     }
 
                     setTimeout(() => {
-                        action({
+                        Dialogs.action({
                             title: 'Select A Number',
                             actions: phones,
                             cancelButtonText
