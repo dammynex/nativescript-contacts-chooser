@@ -5,7 +5,7 @@
   "dependencies": {
     "@nativescript/core": "7.0.0",
     "@nativescript/theme": "~2.3.3",
-    "@nativescript/webpack": "3.0.0",
+    "@nativescript/webpack": "5.0.12",
     "nativescript-contacts-chooser": "file:../src"
   },
   "devDependencies": {
